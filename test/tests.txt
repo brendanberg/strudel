@@ -1,0 +1,3 @@
+Strudel.parse('<p>@(author.name) is @(author.age) years old</p>')({author: {name: 'Brendan', age: 28}});
+Strudel.parse('<p>@with(author)@(name) is @(age) years old@end</p>')({author: {name: 'Brendan', age: 28}});
+Strudel.parse('<ul>\n@each(person)<li>@(name)</li>\n@end</ul>')({person: [{name: 'Brendan'}, {name: 'Karl'}, {name: 'Frank'}]});
