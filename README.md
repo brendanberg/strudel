@@ -1,7 +1,7 @@
 Introduction
 ============
 
-Strudel is a framework-agnostic templating system inspired by [Handlebars][1] and the like.
+Strudel is a framework-agnostic templating system inspired by [Handlebars](http://handlebarsjs.com/) and the like.
 
 
 Tag Types
@@ -9,12 +9,13 @@ Tag Types
 
 Tags are indicated by an at sign (@) followed by some other junk. `@(person)` is a tag, and so are `@with(person)` and `@end`. The following sections describe the different kinds of tags.
 
+
 Variables
 ---------
 
-A variable can be referenced within a context simply by enclosing the variable name in parentheses preceded by an at sign. For example, if the current context is `{'name': 'Brendan', 'location': 'New York'}`, the template `@(name) is currently in @(location)` would evaluate to "Brendan is currently in New York". If there is no property with the variable name in the current context, nothing will be rendered.
+A variable can be referenced within a context simply by enclosing the variable name in parentheses preceded by an at sign. For example, compiling the template `@(name) is currently in @(location)` with the `Strudel.compile` function returns the compiled template as a function. Calling the function with a context object will return a string with the appropriate transformations applied to the template tags. If we called  the function returned by `Strudel.compile` with the context `{'name': 'Brendan', 'location': 'New York'}` passed in as an argument, the string "Brendan is currently in New York" would be returned.
 
-Variable tags automatically escape HTML. To override this behavior and render an unescaped string, use double parentheses.
+Variable tags have some helpful default behavior. The variable name is simply an identifier into the context object. Values referenced by the identifier will be converted to strings automatically, but empty, null, or undefined values will not be rendered. Most importantly, variable tags automatically escape HTML. To override this behavior and render an unescaped string, use double parentheses.
 
 Here's a context and a template string so we can see variable tags in action.
 
@@ -55,6 +56,7 @@ The template and context shown above would render the following output:
 
 	<p><b>Brendan</b> likes Python.</p>
 
+
 Blocks
 ------
 
@@ -62,7 +64,8 @@ A block is a section of a template that falls between opening and closing block 
 
 Pre-defined blocks include `with`, `each`, `if`, and `unless`. Let's look at each of these in detail.
 
-__The `with` Block__
+
+__The With Block__
 
 The `with` block evaluates the expression in its opening tag and pushes the corresponding object onto the context stack. (The `with` block behaves like `let` in some functional languages.)
 
@@ -93,7 +96,7 @@ Compiling the template would result in the following:
 	</div>
 
 
-__The `each` Block__
+__The Each Block__
 
 The `each` block repeatedly renders its contents with each element of an array as its context.
 
@@ -129,7 +132,7 @@ The output would be:
 	</div>
 
 
-__The `if` Block__
+__The If Block__
 
 The `if` block conditionally executes if its expression evaluates to anything other than `false`, `undefined`, `null`, `[]`, or `""` (i.e. the value of the expression must be "truthy").
 
@@ -155,7 +158,7 @@ Additionally, you may define an `@else` clause that renders if the `@if` tag's e
 	</div>
 
 
-__The `unless` Block__
+__The Unless Block__
 
 The `unless` block is the inverse of the `@if` block; it conditionally executes if its expression is falsy.
 
@@ -208,4 +211,6 @@ Helpers
 -------
 
 This functionality is not yet supported.
+
+A helper is a function that is 
 
