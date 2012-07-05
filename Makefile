@@ -1,12 +1,13 @@
 pattern = /\/\/ BEGIN\(BROWSER\)/,/\/\/ END\(BROWSER\)/
-cleanup = /^\/\/ BEGIN\(BROWSER\)/d
+begin = /\/\/ BEGIN(BROWSER)/d
+end = /\/\/ END(BROWSER)/d
 
 build:
 	@echo 'Concatenating scripts...'
 	@awk '$(pattern)' src/base.js > /tmp/strudel.js
 	@awk '$(pattern)' src/ast.js >> /tmp/strudel.js
 	@awk '$(pattern)' src/parser.js >> /tmp/strudel.js
-	@sed '/\/\/ BEGIN(BROWSER)/d' /tmp/strudel.js | sed '/\/\/ END(BROWSER)/d' > strudel.js
+	@sed '$(begin)' /tmp/strudel.js | sed '$(end)' > strudel.js
 	@echo 'Minifying script...'
 	@uglifyjs strudel.js > strudel.min.js
 	@echo 'Build succeeded'
