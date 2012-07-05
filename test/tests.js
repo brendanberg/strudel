@@ -170,7 +170,7 @@ describe('Strudel', function() {
 		});
 	});
 	
-	describe('"Unless" block', function() {
+	describe('"Unless" block', function () {
 		it('should execute the consequent body if the condition is falsy', function () {
 			buildAssertion(assert.equal, {
 				source: '@unless(author)Anonymous@end',
@@ -184,6 +184,26 @@ describe('Strudel', function() {
 				source: '@unless(author)Anonymous@else@(author)@end',
 				context: {author: 'Brendan'},
 				output: 'Brendan'
+			});
+		});
+	});
+	
+	describe('Custom block helpers', function () {
+		Strudel.registerHelper('list', function (context, options) {
+			var html = '', i, l;
+
+			for (i = 0, l = context.length; i < l; i++) {
+				html = html + '<li>' + options.fn.stringWithContext(context[i]) + '</li>';
+			}
+
+			return '<ul>' + html + '</ul>';
+		});
+		
+		it('should work', function () {
+			buildAssertion(assert.equal, {
+				source: '@list(people)@(name)@end',
+				context: {people: [{name: 'Brendan'}, {name: 'Frank'}, {name: 'Marcus'}]},
+				output: '<ul><li>Brendan</li><li>Frank</li><li>Marcus</li></ul>'
 			});
 		});
 	});
