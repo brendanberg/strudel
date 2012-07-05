@@ -2,7 +2,7 @@ pattern = /\/\/ BEGIN\(BROWSER\)/,/\/\/ END\(BROWSER\)/
 begin = /\/\/ BEGIN(BROWSER)/d
 end = /\/\/ END(BROWSER)/d
 
-build:
+build: src/base.js src/ast.js src/parser.js
 	@echo 'Concatenating scripts...'
 	@awk '$(pattern)' src/base.js > /tmp/strudel.js
 	@awk '$(pattern)' src/ast.js >> /tmp/strudel.js
@@ -12,7 +12,7 @@ build:
 	@uglifyjs strudel.js > strudel.min.js
 	@echo 'Build succeeded'
 
-parser:
+src/parser.js:
 	@echo 'Generating parser...'
 	@pegjs -e 'Strudel.Parser' src/grammar/strudel.pegjs src/parser.js
 	@echo "var Strudel = require('./base');\n\n// BEGIN(BROWSER)" > /tmp/parser.js
@@ -21,7 +21,10 @@ parser:
 	@mv /tmp/parser.js src/parser.js
 	@echo 'Successfully generated parser'
 
-test:
+parser: src/parser.js
+	@:
+
+test: src/base.js src/ast.js src/parser.js
 	@mocha -u bdd -R list test/tests.js
 
 clean:
