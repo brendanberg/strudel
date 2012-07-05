@@ -234,12 +234,12 @@ describe('Strudel', function() {
 			}
 		});
 		
-		it('should fail when a path does not exist in a given context', function () {
+		it('should fail when path compnents don\'t start with an alphabetic character', function () {
 			try {
-				Strudel.compile('@(foo.bar)')({foo: null});
+				Strudel.compile('@(foo.9bar)');
 				assert.fail();
 			} catch (e) {
-				assert.equal(e.message, 'Could not traverse specified path in given context.');
+				assert.equal(e.message, 'Expected [a-zA-Z] but "9" found.');
 			}
 		});
 		
@@ -258,6 +258,15 @@ describe('Strudel', function() {
 				assert.fail();
 			} catch (e) {
 				assert.equal(e.message, 'Expected [a-zA-Z] but " " found.');
+			}
+		});
+		
+		it('should fail when a path does not exist in a given context', function () {
+			try {
+				Strudel.compile('@(foo.bar)')({foo: null});
+				assert.fail();
+			} catch (e) {
+				assert.equal(e.message, 'Could not traverse specified path in given context.');
 			}
 		});
 	});

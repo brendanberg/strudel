@@ -1,5 +1,7 @@
 var Strudel = require('./base');
 
+// BEGIN(BROWSER)
+
 (function() {
 	Strudel.AST = {};
 	
@@ -116,3 +118,5 @@ var Strudel = require('./base');
 	};
 		
 }());
+
+// END(BROWSER)

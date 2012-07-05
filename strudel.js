@@ -1,3 +1,4 @@
+
 var Strudel = {};
 
 (function() {
@@ -71,7 +72,7 @@ var Strudel = {};
 Strudel.compile = function(source) {
 	var ast = Strudel.Parser.parse(source);
 	return function(context) {
-		return ast.stringWithContext(context);
+		return String(ast.stringWithContext(context));
 	};
 };
 
@@ -151,6 +152,7 @@ Strudel.SafeString.prototype.toString = function() {
 	}
 }());
 
+
 (function() {
 	Strudel.AST = {};
 	
@@ -165,7 +167,7 @@ Strudel.SafeString.prototype.toString = function() {
 			for (i = 0, l = this.expressionList.length; i < l; i++) {
 				result = result + Strudel.Utils.escapeExpression(this.expressionList[i].stringWithContext(context));
 			}
-			return result;
+			return new Strudel.SafeString(result);
 		}
 	};
 	
@@ -184,13 +186,21 @@ Strudel.SafeString.prototype.toString = function() {
 			var self = this;
 			var helper = Strudel.helpers[this.name.name || 'helperMissing'];
 			var options = {
-				fn: function(context) { return self.consequent.stringWithContext(context); },
-				inverse: function(context) { return self.alternative.stringWithContext(context); },
-				consequent: function(context) { return self.consequent.stringWithContext(context); },
-				alternative: function(context) { return self.alternative.stringWithContext(context); }
+				fn: function(context) {
+					return Strudel.Utils.escapeExpression(self.consequent.stringWithContext(context)); 
+				},
+				inverse: function(context) {
+					return Strudel.Utils.escapeExpression(self.alternative.stringWithContext(context));
+				},
+				consequent: function(context) {
+					return Strudel.Utils.escapeExpression(self.consequent.stringWithContext(context));
+				},
+				alternative: function(context) {
+					return Strudel.Utils.escapeExpression(self.alternative.stringWithContext(context));
+				}
 			};
 			var innerContext = this.expression.valueAtPath(context);
-			return helper.call(context, innerContext, options);
+			return new Strudel.SafeString(helper.call(context, innerContext, options));
 		}
 	};
 	
@@ -1237,3 +1247,4 @@ Strudel.Parser = (function(){
 	
 	return result;
 })();
+
