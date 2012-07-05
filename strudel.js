@@ -2,7 +2,7 @@ var Strudel = {};
 
 (function() {
 
-	Strudel.VERSION = "0.1 alpha";
+	Strudel.VERSION = "0.2 alpha";
 
 	Strudel.helpers = {};
 
@@ -24,38 +24,40 @@ var Strudel = {};
 	Strudel.registerHelper('blockHelperMissing', function() {});
 
 	Strudel.registerHelper('with', function (context, options) {
-		return options.fn.stringWithContext(context);
+		if (!context || Strudel.Utils.isEmpty(context)) {
+			return options.alternative(this);
+		} else {
+			return options.consequent(context);
+		}
 	});
 
 	Strudel.registerHelper('each', function (context, options) {
-		var cond = options.fn, inverse = options.inverse;
+		var consequent = options.consequent;
 		var str = '', i, l;
 	
 		if (context && context.length > 0) {
 			for (i = 0, l = context.length; i < l; i++) {
-				str = str + cond.stringWithContext(context[i]);
+				str = str + consequent(context[i]);
 			}
 		} else {
-			str = inverse.stringWithContext(this);
+			str = options.alternative(this);
 		}
 	
 		return str;
 	});
 
 	Strudel.registerHelper('if', function (context, options) {
-		var cond = options.fn, inverse = options.inverse;
-	
 		if (!context || Strudel.Utils.isEmpty(context)) {
-			return inverse.stringWithContext(this);
+			return options.alternative(this);
 		} else {
-			return cond.stringWithContext(this);
+			return options.consequent(this);
 		}
 	});
 
 	Strudel.registerHelper('unless', function (context, options) {
-		var inverse = options.inverse;
-		options.inverse = options.fn;
-		options.fn = inverse;
+		var alt = options.alternative;
+		options.alternative = options.consequent;
+		options.consequent = alt;
 		return Strudel.helpers['if'].call(this, context, options);
 	});
 
@@ -84,6 +86,7 @@ Strudel.EvaluationError = function (message) {
 Strudel.SafeString = function(string) {
 	this.string = string;
 };
+
 Strudel.SafeString.prototype.toString = function() {
 	return this.string.toString();
 };
@@ -106,6 +109,12 @@ Strudel.SafeString.prototype.toString = function() {
 	
 	Strudel.Utils = {
 		escapeExpression: function(string) {
+			if (string instanceof Strudel.SafeString) {
+				return String(string);
+			} else if (string == null || string === false) {
+				return '';
+			}
+			
 			if (!possible.test(string)) {
 				return string;
 			}
@@ -133,6 +142,8 @@ Strudel.SafeString.prototype.toString = function() {
 				return true;
 			} else if (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0) {
 				return true;
+			} else if (Object.prototype.toString.call(value) === '[object Object]' && Object.keys(value).length === 0) {
+				return true;
 			} else {
 				return false;
 			}
@@ -145,7 +156,6 @@ Strudel.SafeString.prototype.toString = function() {
 	
 	Strudel.AST.Template = function(list) {
 		this.type = "template";
-		this.safeString = '';
 		this.expressionList = list;
 	};
 	
@@ -153,7 +163,7 @@ Strudel.SafeString.prototype.toString = function() {
 		stringWithContext: function(context) {
 			var i, l, result = '';
 			for (i = 0, l = this.expressionList.length; i < l; i++) {
-				result = result + this.expressionList[i].stringWithContext(context);
+				result = result + Strudel.Utils.escapeExpression(this.expressionList[i].stringWithContext(context));
 			}
 			return result;
 		}
@@ -171,10 +181,13 @@ Strudel.SafeString.prototype.toString = function() {
 	
 	Strudel.AST.Block.prototype = {
 		stringWithContext: function(context) {
+			var self = this;
 			var helper = Strudel.helpers[this.name.name || 'helperMissing'];
 			var options = {
-				fn: this.consequent,
-				inverse: this.alternative
+				fn: function(context) { return self.consequent.stringWithContext(context); },
+				inverse: function(context) { return self.alternative.stringWithContext(context); },
+				consequent: function(context) { return self.consequent.stringWithContext(context); },
+				alternative: function(context) { return self.alternative.stringWithContext(context); }
 			};
 			var innerContext = this.expression.valueAtPath(context);
 			return helper.call(context, innerContext, options);
@@ -214,7 +227,13 @@ Strudel.SafeString.prototype.toString = function() {
 		},
 		
 		stringWithContext: function(context) {
-			return String(this.valueAtPath(context));
+			var value = this.valueAtPath(context);
+			
+			if (Strudel.Utils.isEmpty(value)) {
+				return '';
+			} else {
+				return String(value);
+			}
 		}
 	};
 	
@@ -230,18 +249,16 @@ Strudel.SafeString.prototype.toString = function() {
 	
 	Strudel.AST.Literal = function(str) {
 		this.type = "literal";
-		this.safeString = str;
+		this.string = str;
 	};
 	
 	Strudel.AST.Literal.prototype = {
 		stringWithContext: function() {
-			return this.safeString;
+			return new Strudel.SafeString(this.string);
 		}
 	};
 		
 }());
-
-var Strudel = require('./base');
 
 Strudel.Parser = (function(){
 	/*
@@ -449,7 +466,7 @@ Strudel.Parser = (function(){
 						pos = pos1;
 					}
 					if (result0 !== null) {
-						result0 = (function(offset, expr) { expr.wrap(Strudel.Utils.escapeExpression); return expr; })(pos0, result0[1]);
+						result0 = (function(offset, expr) { return expr; })(pos0, result0[1]);
 					}
 					if (result0 === null) {
 						pos = pos0;
@@ -493,7 +510,7 @@ Strudel.Parser = (function(){
 							pos = pos1;
 						}
 						if (result0 !== null) {
-							result0 = (function(offset, expr) { return expr; })(pos0, result0[1]);
+							result0 = (function(offset, expr) { expr.wrap(function(s) { return new Strudel.SafeString(s); }); return expr; })(pos0, result0[1]);
 						}
 						if (result0 === null) {
 							pos = pos0;

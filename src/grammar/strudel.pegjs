@@ -8,8 +8,8 @@ template
 
 block
 	= "@@" { return new Strudel.AST.Literal('@'); }
-	/ "@(" expr:expression ")" { expr.wrap(Strudel.Utils.escapeExpression); return expr; }
-	/ "@((" expr:expression "))" { return expr; }
+	/ "@(" expr:expression ")" { return expr; }
+	/ "@((" expr:expression "))" { expr.wrap(function(s) { return new Strudel.SafeString(s); }); return expr; }
 	/ "@" n:name "(" expr:expression ")" body:start "@end"
 		{ return new Strudel.AST.Block(n, expr, body); }
 	/ "@" n:name "(" expr:expression ")" consequent:start "@else" alternative:start "@end"

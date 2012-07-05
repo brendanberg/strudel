@@ -5,7 +5,6 @@ var Strudel = require('./base');
 	
 	Strudel.AST.Template = function(list) {
 		this.type = "template";
-		this.safeString = '';
 		this.expressionList = list;
 	};
 	
@@ -13,7 +12,7 @@ var Strudel = require('./base');
 		stringWithContext: function(context) {
 			var i, l, result = '';
 			for (i = 0, l = this.expressionList.length; i < l; i++) {
-				result = result + this.expressionList[i].stringWithContext(context);
+				result = result + Strudel.Utils.escapeExpression(this.expressionList[i].stringWithContext(context));
 			}
 			return result;
 		}
@@ -31,10 +30,13 @@ var Strudel = require('./base');
 	
 	Strudel.AST.Block.prototype = {
 		stringWithContext: function(context) {
+			var self = this;
 			var helper = Strudel.helpers[this.name.name || 'helperMissing'];
 			var options = {
-				fn: this.consequent,
-				inverse: this.alternative
+				fn: function(context) { return self.consequent.stringWithContext(context); },
+				inverse: function(context) { return self.alternative.stringWithContext(context); },
+				consequent: function(context) { return self.consequent.stringWithContext(context); },
+				alternative: function(context) { return self.alternative.stringWithContext(context); }
 			};
 			var innerContext = this.expression.valueAtPath(context);
 			return helper.call(context, innerContext, options);
@@ -96,12 +98,12 @@ var Strudel = require('./base');
 	
 	Strudel.AST.Literal = function(str) {
 		this.type = "literal";
-		this.safeString = str;
+		this.string = str;
 	};
 	
 	Strudel.AST.Literal.prototype = {
 		stringWithContext: function() {
-			return this.safeString;
+			return new Strudel.SafeString(this.string);
 		}
 	};
 		

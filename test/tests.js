@@ -55,7 +55,7 @@ describe('Strudel', function() {
 				output: '<p><b>Brendan</b></p>'
 			});
 		});
-		
+		// Test for double escaping
 		it('should render empty or falsy values as the empty string', function () {
 			buildAssertion(assert.equal, {
 				source: '<p>@(age)</p>',
@@ -193,10 +193,10 @@ describe('Strudel', function() {
 			var html = '', i, l;
 
 			for (i = 0, l = context.length; i < l; i++) {
-				html = html + '<li>' + options.fn.stringWithContext(context[i]) + '</li>';
+				html = html + '<li>' + Strudel.Utils.escapeExpression(options.consequent(context[i])) + '</li>';
 			}
 
-			return '<ul>' + html + '</ul>';
+			return new Strudel.SafeString('<ul>' + html + '</ul>');
 		});
 		
 		it('should work', function () {

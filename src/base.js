@@ -4,7 +4,7 @@ var Strudel = {};
 
 (function() {
 
-	Strudel.VERSION = "0.1 alpha";
+	Strudel.VERSION = "0.2 alpha";
 
 	Strudel.helpers = {};
 
@@ -26,44 +26,40 @@ var Strudel = {};
 	Strudel.registerHelper('blockHelperMissing', function() {});
 
 	Strudel.registerHelper('with', function (context, options) {
-		var cond = options.fn, inverse = options.inverse;
-		
 		if (!context || Strudel.Utils.isEmpty(context)) {
-			return inverse.stringWithContext(this);
+			return options.alternative(this);
 		} else {
-			return cond.stringWithContext(context);
+			return options.consequent(context);
 		}
 	});
 
 	Strudel.registerHelper('each', function (context, options) {
-		var cond = options.fn, inverse = options.inverse;
+		var consequent = options.consequent;
 		var str = '', i, l;
 	
 		if (context && context.length > 0) {
 			for (i = 0, l = context.length; i < l; i++) {
-				str = str + cond.stringWithContext(context[i]);
+				str = str + consequent(context[i]);
 			}
 		} else {
-			str = inverse.stringWithContext(this);
+			str = options.alternative(this);
 		}
 	
 		return str;
 	});
 
 	Strudel.registerHelper('if', function (context, options) {
-		var cond = options.fn, inverse = options.inverse;
-	
 		if (!context || Strudel.Utils.isEmpty(context)) {
-			return inverse.stringWithContext(this);
+			return options.alternative(this);
 		} else {
-			return cond.stringWithContext(this);
+			return options.consequent(this);
 		}
 	});
 
 	Strudel.registerHelper('unless', function (context, options) {
-		var inverse = options.inverse;
-		options.inverse = options.fn;
-		options.fn = inverse;
+		var alt = options.alternative;
+		options.alternative = options.consequent;
+		options.consequent = alt;
 		return Strudel.helpers['if'].call(this, context, options);
 	});
 
@@ -92,6 +88,7 @@ Strudel.EvaluationError = function (message) {
 Strudel.SafeString = function(string) {
 	this.string = string;
 };
+
 Strudel.SafeString.prototype.toString = function() {
 	return this.string.toString();
 };
@@ -114,6 +111,12 @@ Strudel.SafeString.prototype.toString = function() {
 	
 	Strudel.Utils = {
 		escapeExpression: function(string) {
+			if (string instanceof Strudel.SafeString) {
+				return String(string);
+			} else if (string == null || string === false) {
+				return '';
+			}
+			
 			if (!possible.test(string)) {
 				return string;
 			}
