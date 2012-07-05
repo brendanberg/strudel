@@ -50,7 +50,7 @@ A variable tag may use dot notation to specify a path through an object graph. A
 		}
 	}
 
-	<p><b>@(person.name)</b> likes @(person.interests[1])</p>
+	<p><b>@(person.name)</b> likes @(person.interests[1]).</p>
 
 The template and context shown above would render the following output:
 
@@ -172,19 +172,19 @@ An `unless` block may also have an optional `@else` clause.
 Custom Blocks
 -------------
 
-Custom blocks may be registered with the compiler to define custom behavior for arbitrary identifiers. A block handler is a function that is passed a context, an expression, and a body. Additionally, if the handler supports an `@else` block, it receives an alternative body.
+Custom blocks may be registered with the compiler to define custom behavior for arbitrary identifiers. A block handler is a function that is passed a context and an options object. The options object has an `fn` property that represents the consequent body of the block, and `inverse` property that represents the alternative body if the block was constructed with an `@else` clause.
 
-Let's revisit the `each` block example above. If we wanted to create a custom block handler for lists, we could define the following function:
+Let's revisit the `each` block example above. If we wanted a custom block tag to render HTML lists, we could register the following helper:
 
-	Strudel.blocks['list'] = function (context, expr, body) {
-		var html = '<ul>', ctx = expr(context);
+	Strudel.registerHandler('list', function (context, options) {
+		var html = '', i, l;
 		
-		for (var i = 0, l = ctx.length; i < l; i++) {
-			html = html + '<li>' + body(ctx[i]) + '</li>';
+		for (i = 0, l = context.length; i < l; i++) {
+			html = html + '<li>' + options.fn(context[i]) + '</li>';
 		}
 		
-		return html + '</ul>';
-	};
+		return '<ul>' + html + '</ul>';
+	});
 
 After defining the helper function, you can invoke a context just like a normal Strudel template.
 
@@ -207,10 +207,7 @@ When executed, the template would render the following HTML:
 	</ul>
 
 
-Helpers
--------
+Variable Helpers
+----------------
 
 This functionality is not yet supported.
-
-A helper is a function that is 
-
