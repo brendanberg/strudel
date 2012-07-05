@@ -126,6 +126,14 @@ describe('Strudel', function() {
 				output: 'Anonymous'
 			});
 		});
+		
+		it('should render raw strings when using double parens', function () {
+			buildAssertion(assert.equal, {
+				source: '@with(author)@((name))@end',
+				context: {author: {name: '<b>Brendan</b>'}},
+				output: '<b>Brendan</b>'
+			});
+		});
 	});
 	
 	describe('"Each" block', function() {
@@ -193,17 +201,25 @@ describe('Strudel', function() {
 			var html = '', i, l;
 
 			for (i = 0, l = context.length; i < l; i++) {
-				html = html + '<li>' + Strudel.Utils.escapeExpression(options.consequent(context[i])) + '</li>';
+				html = html + '<li>' + options.consequent(context[i]) + '</li>';
 			}
 
-			return new Strudel.SafeString('<ul>' + html + '</ul>');
+			return '<ul>' + html + '</ul>';
 		});
 		
-		it('should work', function () {
+		it('should escape template vars but preserve literal text in the helper', function () {
 			buildAssertion(assert.equal, {
 				source: '@list(people)@(name)@end',
-				context: {people: [{name: 'Brendan'}, {name: 'Frank'}, {name: 'Marcus'}]},
-				output: '<ul><li>Brendan</li><li>Frank</li><li>Marcus</li></ul>'
+				context: {people: [{name: '<b>Brendan</b>'}, {name: 'Frank'}, {name: 'Marcus'}]},
+				output: '<ul><li>&lt;b&gt;Brendan&lt;/b&gt;</li><li>Frank</li><li>Marcus</li></ul>'
+			});
+		});
+		
+		it('should render raw text when using double parens', function () {
+			buildAssertion(assert.equal, {
+				source: '@list(people)@((name))@end',
+				context: {people: [{name: '<b>Brendan</b>'}]},
+				output: '<ul><li><b>Brendan</b></li></ul>'
 			});
 		});
 	});

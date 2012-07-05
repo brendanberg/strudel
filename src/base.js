@@ -73,7 +73,7 @@ var Strudel = {};
 Strudel.compile = function(source) {
 	var ast = Strudel.Parser.parse(source);
 	return function(context) {
-		return ast.stringWithContext(context);
+		return String(ast.stringWithContext(context));
 	};
 };
 

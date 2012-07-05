@@ -14,7 +14,7 @@ var Strudel = require('./base');
 			for (i = 0, l = this.expressionList.length; i < l; i++) {
 				result = result + Strudel.Utils.escapeExpression(this.expressionList[i].stringWithContext(context));
 			}
-			return result;
+			return new Strudel.SafeString(result);
 		}
 	};
 	
@@ -33,13 +33,21 @@ var Strudel = require('./base');
 			var self = this;
 			var helper = Strudel.helpers[this.name.name || 'helperMissing'];
 			var options = {
-				fn: function(context) { return self.consequent.stringWithContext(context); },
-				inverse: function(context) { return self.alternative.stringWithContext(context); },
-				consequent: function(context) { return self.consequent.stringWithContext(context); },
-				alternative: function(context) { return self.alternative.stringWithContext(context); }
+				fn: function(context) {
+					return Strudel.Utils.escapeExpression(self.consequent.stringWithContext(context)); 
+				},
+				inverse: function(context) {
+					return Strudel.Utils.escapeExpression(self.alternative.stringWithContext(context));
+				},
+				consequent: function(context) {
+					return Strudel.Utils.escapeExpression(self.consequent.stringWithContext(context));
+				},
+				alternative: function(context) {
+					return Strudel.Utils.escapeExpression(self.alternative.stringWithContext(context));
+				}
 			};
 			var innerContext = this.expression.valueAtPath(context);
-			return helper.call(context, innerContext, options);
+			return new Strudel.SafeString(helper.call(context, innerContext, options));
 		}
 	};
 	
