@@ -4,7 +4,7 @@ var Strudel = {};
 
 (function() {
 
-	Strudel.VERSION = "0.2 alpha";
+	Strudel.VERSION = "0.3 alpha";
 
 	Strudel.helpers = {};
 
