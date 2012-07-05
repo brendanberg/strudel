@@ -223,4 +223,42 @@ describe('Strudel', function() {
 			});
 		});
 	});
+	
+	describe('Degenerate templates', function () {
+		it('should fail when list indexes are not numeric', function () {
+			try {
+				Strudel.compile('@(foo[bar])');
+				assert.fail();
+			} catch (e) {
+				assert.equal(e.message, 'Expected [0-9] but "b" found.');
+			}
+		});
+		
+		it('should fail when a path does not exist in a given context', function () {
+			try {
+				Strudel.compile('@(foo.bar)')({foo: null});
+				assert.fail();
+			} catch (e) {
+				assert.equal(e.message, 'Could not traverse specified path in given context.');
+			}
+		});
+		
+		it('should fail when a block tag isn\'t closed', function () {
+			try {
+				Strudel.compile('@if(foo)...@@');
+				assert.fail();
+			} catch (e) {
+				assert.equal(e.message, 'Expected "@", "@(", "@((", "@@", "@else", "@end" or [^@] but end of input found.');
+			}
+		});
+		
+		it('should fail when encountering a lonesome at', function () {
+			try {
+				Strudel.compile('<p>@ </p>');
+				assert.fail();
+			} catch (e) {
+				assert.equal(e.message, 'Expected [a-zA-Z] but " " found.');
+			}
+		});
+	});
 });
