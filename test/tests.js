@@ -201,7 +201,7 @@ describe('Strudel', function() {
 			var html = '', i, l;
 
 			for (i = 0, l = context.length; i < l; i++) {
-				html = html + '<li>' + options.consequent(context[i]) + '</li>';
+				html += '<li>' + options.consequent(context[i]) + '</li>';
 			}
 
 			return '<ul>' + html + '</ul>';

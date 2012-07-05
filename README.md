@@ -180,12 +180,10 @@ Let's revisit the `each` block example above. If we wanted a custom block tag to
 		var html = '', i, l;
 		
 		for (i = 0, l = context.length; i < l; i++) {
-			html += '<li>';
-			html += Strudel.Utils.escapeExpression(options.fn(context[i]))
-			html += '</li>';
+			html += '<li>' + options.fn(context[i]) + '</li>';
 		}
 		
-		return new Strudel.SafeString('<ul>' + html + '</ul>');
+		return '<ul>' + html + '</ul>';
 	});
 
 After defining the helper function, you can invoke a context just like a normal Strudel template.
