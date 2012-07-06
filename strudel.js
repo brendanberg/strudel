@@ -3,7 +3,7 @@ var Strudel = {};
 
 (function() {
 
-	Strudel.VERSION = "0.2 alpha";
+	Strudel.VERSION = "0.3 alpha";
 
 	Strudel.helpers = {};
 
@@ -202,7 +202,7 @@ Strudel.SafeString.prototype.toString = function() {
 			if (this.expression.attributes) {
 				options['hash'] = {};
 				for (key in this.expression.attributes) {
-					if (this.expression.atttributes.hasOwnProperty(key)) {
+					if (this.expression.attributes.hasOwnProperty(key)) {
 						val = this.expression.attributes[key];
 						if (val instanceof Strudel.AST.Expression) {
 							val = val.stringWithContext(context);

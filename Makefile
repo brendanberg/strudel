@@ -12,7 +12,7 @@ build: src/base.js src/ast.js src/parser.js
 	@uglifyjs strudel.js > strudel.min.js
 	@echo 'Build succeeded'
 
-src/parser.js:
+src/parser.js: src/grammar/strudel.pegjs
 	@echo 'Generating parser...'
 	@pegjs -e 'Strudel.Parser' src/grammar/strudel.pegjs src/parser.js
 	@echo "var Strudel = require('./base');\n\n// BEGIN(BROWSER)" > /tmp/parser.js

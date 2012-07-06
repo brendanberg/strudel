@@ -6,7 +6,12 @@ function buildAssertion(assertion, test) {
 }
 
 describe('Strudel', function() {
-	
+
+// ------------------------------------------------------------------
+// LITERALS
+// Tests for basic literals, including escaped @'s (@@)
+// ------------------------------------------------------------------
+
 	describe('Literal evaluation', function() {
 		it('should render literal text as-is', function () {
 			buildAssertion(assert.equal, {
@@ -17,17 +22,20 @@ describe('Strudel', function() {
 		});
 		
 		it('should render escaped strudels properly', function () {
-			buildAssertion(assert.equal, {
-				source: '@@', context: {}, output: '@'
-			});
+			buildAssertion(assert.equal, {source: '@@', context: {}, output: '@'});
 		});
 	});
-	
+
+// ------------------------------------------------------------------
+// EXPRESSION LOOKUP
+// Tests for ...
+// ------------------------------------------------------------------
+
 	describe('Expression lookup', function() {
 		it('should resolve well-formed dot notation', function () {
 			buildAssertion(assert.equal, {
-				source: '@(author.name) is @(author.age) years old.',
-				context: {author: {name: 'Brendan', age: 28}},
+				source: '@(author.name) is @(author.age.years) years old.',
+				context: {author: {name: 'Brendan', age: {years: 28}}},
 				output: 'Brendan is 28 years old.'
 			});
 		});
@@ -109,7 +117,12 @@ describe('Strudel', function() {
 			});
 		});
 	});
-	
+
+// ------------------------------------------------------------------
+// WITH BLOCK
+// Tests for @with(foo) ... @end
+// ------------------------------------------------------------------
+
 	describe('"With" block', function() {
 		it('should execute the block body with the inner scope', function () {
 			buildAssertion(assert.equal, {
@@ -135,7 +148,12 @@ describe('Strudel', function() {
 			});
 		});
 	});
-	
+
+// ------------------------------------------------------------------
+// EACH BLOCK
+// Tests for @each(foo) ... @end
+// ------------------------------------------------------------------
+
 	describe('"Each" block', function() {
 		it('should execute the block body with each item in a list', function () {
 			buildAssertion(assert.equal, {
@@ -145,7 +163,12 @@ describe('Strudel', function() {
 			});
 		});
 	});
-	
+
+// ------------------------------------------------------------------
+// IF BLOCK
+// Tests for @if(foo) ... @end
+// ------------------------------------------------------------------
+
 	describe('"If" block', function() {
 		it('should execute the consequent body if the condition is truthy', function () {
 			buildAssertion(assert.equal, {
@@ -177,7 +200,12 @@ describe('Strudel', function() {
 			});
 		});
 	});
-	
+
+// ------------------------------------------------------------------
+// UNLESS BLOCK
+// Tests for @unless(foo) ... @end
+// ------------------------------------------------------------------
+
 	describe('"Unless" block', function () {
 		it('should execute the consequent body if the condition is falsy', function () {
 			buildAssertion(assert.equal, {
@@ -195,7 +223,12 @@ describe('Strudel', function() {
 			});
 		});
 	});
-	
+
+// ------------------------------------------------------------------
+// CUSTOM BLOCK HELPERS
+// Tests for custom block helpers
+// ------------------------------------------------------------------
+
 	describe('Custom block helpers', function () {
 		Strudel.registerHelper('list', function (context, options) {
 			var html = '', i, l;
@@ -243,6 +276,11 @@ describe('Strudel', function() {
 		});
 	});
 	
+// ------------------------------------------------------------------
+// DEGENERATE TEMPLATES
+// Tests for templates that shouldn't compile or shouldn't execute
+// ------------------------------------------------------------------
+
 	describe('Degenerate templates', function () {
 		it('should fail when list indexes are not numeric', function () {
 			try {
