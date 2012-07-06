@@ -568,6 +568,7 @@ Strudel.Parser = (function(){
 				pos1 = pos;
 				result0 = parse_keyValuePair();
 				if (result0 !== null) {
+					result1 = [];
 					pos2 = pos;
 					pos3 = pos;
 					if (input.charCodeAt(pos) === 32) {
@@ -597,42 +598,37 @@ Strudel.Parser = (function(){
 					if (result2 === null) {
 						pos = pos2;
 					}
-					if (result2 !== null) {
-						result1 = [];
-						while (result2 !== null) {
-							result1.push(result2);
-							pos2 = pos;
-							pos3 = pos;
-							if (input.charCodeAt(pos) === 32) {
-								result2 = " ";
-								pos++;
-							} else {
-								result2 = null;
-								if (reportFailures === 0) {
-									matchFailed("\" \"");
-								}
+					while (result2 !== null) {
+						result1.push(result2);
+						pos2 = pos;
+						pos3 = pos;
+						if (input.charCodeAt(pos) === 32) {
+							result2 = " ";
+							pos++;
+						} else {
+							result2 = null;
+							if (reportFailures === 0) {
+								matchFailed("\" \"");
 							}
-							if (result2 !== null) {
-								result3 = parse_keyValuePair();
-								if (result3 !== null) {
-									result2 = [result2, result3];
-								} else {
-									result2 = null;
-									pos = pos3;
-								}
+						}
+						if (result2 !== null) {
+							result3 = parse_keyValuePair();
+							if (result3 !== null) {
+								result2 = [result2, result3];
 							} else {
 								result2 = null;
 								pos = pos3;
 							}
-							if (result2 !== null) {
-								result2 = (function(offset, obj) { return obj; })(pos2, result2[1]);
-							}
-							if (result2 === null) {
-								pos = pos2;
-							}
+						} else {
+							result2 = null;
+							pos = pos3;
 						}
-					} else {
-						result1 = null;
+						if (result2 !== null) {
+							result2 = (function(offset, obj) { return obj; })(pos2, result2[1]);
+						}
+						if (result2 === null) {
+							pos = pos2;
+						}
 					}
 					if (result1 !== null) {
 						result0 = [result0, result1];

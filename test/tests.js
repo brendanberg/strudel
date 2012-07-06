@@ -119,6 +119,29 @@ describe('Strudel', function() {
 	});
 
 // ------------------------------------------------------------------
+// EXPRESSION HELPERS
+// Tests for expression helpers like @(helper path.to.value)
+// ------------------------------------------------------------------
+
+	describe('Expression helpers', function () {
+		it('should find registered helpers', function () {
+			Strudel.registerHelper('person', function(person, options) {
+				var age = '';
+				if (options.hash) {
+					age = ', age ' + options.hash.age;
+				}
+				return person.firstName + ' ' + person.lastName + age;
+			});
+			
+			buildAssertion(assert.equal, {
+				source: '@(person foo age=24)',
+				context: {foo: {firstName: 'Joe', lastName: 'Foo'}},
+				output: 'Joe Foo, age 24'
+			});
+		});
+	});
+
+// ------------------------------------------------------------------
 // WITH BLOCK
 // Tests for @with(foo) ... @end
 // ------------------------------------------------------------------

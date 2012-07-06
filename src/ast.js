@@ -69,7 +69,7 @@ var Strudel = require('./base');
 	
 	Strudel.AST.Expression = function(list) {
 		this.type = "expression";
-		this.helper = function(x) { return x; };
+		this.helper = null;
 		this.searchPath = list;
 	};
 	
@@ -98,6 +98,27 @@ var Strudel = require('./base');
 		},
 		
 		stringWithContext: function(context) {
+			if (this.helper) {
+				var helper = Strudel.helpers[this.helper.name || 'helperMissing'];
+				var options = {}, key, val;
+				
+				if (this.attributes) {
+					options['hash'] = {};
+					for (key in this.attributes) {
+						if (this.attributes.hasOwnProperty(key)) {
+							val = this.attributes[key];
+							if (val instanceof Strudel.AST.Expression) {
+								val = val.stringWithContext(context);
+							}
+							options['hash'][key] = val;
+						}
+					}
+				}
+				
+				var innerContext = this.valueAtPath(context);
+				return new Strudel.SafeString(helper.call(context, innerContext, options));
+			}
+			
 			var value = this.valueAtPath(context);
 			
 			if (Strudel.Utils.isEmpty(value)) {

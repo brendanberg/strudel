@@ -19,7 +19,7 @@ src/parser.js: src/grammar/strudel.pegjs
 	@unexpand -t 2 src/parser.js >> /tmp/parser.js
 	@echo '\n// END(BROWSER)' >> /tmp/parser.js
 	@mv /tmp/parser.js src/parser.js
-	@echo 'Successfully generated parser'
+	@echo 'Parser generation succeeded'
 
 parser: src/parser.js
 	@:

@@ -21,7 +21,7 @@ expression
 		{ exp.helper = helper; exp.attributes = a; return exp; }
 
 attributes
-	= first:keyValuePair rest:(" " obj:keyValuePair { return obj; }) +
+	= first:keyValuePair rest:(" " obj:keyValuePair { return obj; }) *
 		{
 			var attributes = {};
 			attributes[first[0]] = first[1];
