@@ -32,7 +32,7 @@ var Strudel = require('./base');
 	
 	Strudel.AST.Block.prototype = {
 		stringWithContext: function(context) {
-			var self = this;
+			var self = this, key, val;
 			var helper = Strudel.helpers[this.name.name || 'helperMissing'];
 			var options = {
 				fn: function(context) {
@@ -48,6 +48,18 @@ var Strudel = require('./base');
 					return Strudel.Utils.escapeExpression(self.alternative.stringWithContext(context));
 				}
 			};
+			if (this.expression.attributes) {
+				options['hash'] = {};
+				for (key in this.expression.attributes) {
+					if (this.expression.attributes.hasOwnProperty(key)) {
+						val = this.expression.attributes[key];
+						if (val instanceof Strudel.AST.Expression) {
+							val = val.stringWithContext(context);
+						}
+						options['hash'][key] = val;
+					}
+				}
+			}
 			var innerContext = this.expression.valueAtPath(context);
 			return new Strudel.SafeString(helper.call(context, innerContext, options));
 		}

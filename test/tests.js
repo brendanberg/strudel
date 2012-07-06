@@ -222,6 +222,25 @@ describe('Strudel', function() {
 				output: '<ul><li><b>Brendan</b></li></ul>'
 			});
 		});
+		
+		Strudel.registerHelper('a', function(context, options) {
+			var attribs = [];
+			for (var k in options.hash) {
+				var safeKey = Strudel.Utils.escapeExpression(k);
+				var safeVal = Strudel.Utils.escapeExpression(options.hash[k]);
+				attribs.push(safeKey + '="' + safeVal + '"');
+			}
+			var attribStr = attribs.join(' ');
+			return '<a ' + attribStr + '>' + options.fn(this) + '</a>';
+		});
+		
+		it('should populate the options.hash object when key value pairs are used', function () {
+			buildAssertion(assert.equal, {
+				source: '@a(href="http://bom.bs/" target="new" class=class)@(name)@end',
+				context: {name: 'Brendan', class: 'awesome'},
+				output: '<a href="http://bom.bs/" target="new" class="awesome">Brendan</a>'
+			});
+		});
 	});
 	
 	describe('Degenerate templates', function () {
