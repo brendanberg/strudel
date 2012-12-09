@@ -1,6 +1,7 @@
 pattern = /\/\/ BEGIN\(BROWSER\)/,/\/\/ END\(BROWSER\)/
 begin = /\/\/ BEGIN(BROWSER)/d
 end = /\/\/ END(BROWSER)/d
+modulePath = ./node_modules/.bin
 
 build: src/base.js src/ast.js src/parser.js
 	@echo 'Concatenating scripts...'
@@ -9,12 +10,12 @@ build: src/base.js src/ast.js src/parser.js
 	@awk '$(pattern)' src/parser.js >> /tmp/strudel.js
 	@sed '$(begin)' /tmp/strudel.js | sed '$(end)' > strudel.js
 	@echo 'Minifying script...'
-	@uglifyjs strudel.js > strudel.min.js
+	@$(modulePath)/uglifyjs strudel.js > strudel.min.js
 	@echo 'Build succeeded'
 
 src/parser.js: src/grammar/strudel.pegjs
 	@echo 'Generating parser...'
-	@pegjs -e 'Strudel.Parser' src/grammar/strudel.pegjs src/parser.js
+	@$(modulePath)/pegjs -e 'Strudel.Parser' src/grammar/strudel.pegjs src/parser.js
 	@echo "var Strudel = require('./base');\n\n// BEGIN(BROWSER)" > /tmp/parser.js
 	@unexpand -t 2 src/parser.js >> /tmp/parser.js
 	@echo '\n// END(BROWSER)' >> /tmp/parser.js
@@ -24,8 +25,8 @@ src/parser.js: src/grammar/strudel.pegjs
 parser: src/parser.js
 	@:
 
-test: src/base.js src/ast.js src/parser.js
-	@mocha -u bdd -R list test/tests.js
+test: src/base.js src/ast.js src/parser.js test/tests.js
+	@$(modulePath)/mocha -u bdd -R list -C test/tests.js
 
 clean:
 	@rm -f strudel.js strudel.min.js src/parser.js

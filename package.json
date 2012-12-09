@@ -1,0 +1,27 @@
+{
+	"name": "strudel",
+	"version": "0.1.0",
+	"author": "Brendan Berg <brendan@plusminusfive.com",
+	"description": "Logicless @(strudel) templates with JavaScript",
+	"contributors": [
+		{
+			"name": "Brendan Berg",
+			"email": "brendan@plusminusfive.com"
+		}
+	],
+	"keywords": [
+		"template",
+		"html",
+		"front-end",
+		"mustache",
+		"handlebars"
+	],
+	"devDependencies": {
+		"uglify-js": "2.2.2",
+		"pegjs": "0.7.0",
+		"mocha": "1.7.4"
+	},
+	"dependencies": {
+	},
+	"license": "MIT"
+}
