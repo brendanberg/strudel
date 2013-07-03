@@ -65,3 +65,4 @@ index
 
 literal
 	= chars:[^@]+ { return new Strudel.AST.Literal(chars.join('')); }
+
