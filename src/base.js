@@ -26,10 +26,10 @@ var Strudel = {};
 	Strudel.registerHelper('blockHelperMissing', function() {});
 
 	Strudel.registerHelper('with', function (context, options) {
-		if (!context || Strudel.Utils.isEmpty(context)) {
-			return options.alternative(this);
-		} else {
+		if (Strudel.Utils.isTruthy(context)) {
 			return options.consequent(context);
+		} else {
+			return options.alternative(this);
 		}
 	});
 
@@ -49,10 +49,10 @@ var Strudel = {};
 	});
 
 	Strudel.registerHelper('if', function (context, options) {
-		if (!context || Strudel.Utils.isEmpty(context)) {
-			return options.alternative(this);
-		} else {
+		if (Strudel.Utils.isTruthy(context)) {
 			return options.consequent(this);
+		} else {
+			return options.alternative(this);
 		}
 	});
 
@@ -135,19 +135,27 @@ Strudel.SafeString.prototype.toString = function() {
 			}
 			return s;
 		},
-		isEmpty: function (value) {
+		isTruthy: function (value) {
+			// Falsy values are undefined, false, null, zero in any numeric
+			// type, any empty sequence type, any empty mapping, user-defined
+			// instances with __nonzero__ defined whose implementation returns
+			// true. Everything else is truthy.
 			if (typeof value === 'undefined') {
-				return true;
-			} else if (value === null) {
-				return true;
-			} else if (value === false) {
-				return true;
-			} else if (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0) {
-				return true;
-			} else if (Object.prototype.toString.call(value) === '[object Object]' && Object.keys(value).length === 0) {
-				return true;
-			} else {
 				return false;
+			} else if (value === null) {
+				return false;
+			} else if (value === false) {
+				return false;
+			} else if (value === 0) {
+				return false;
+			} else if (value === '') {
+				return false;
+			} else if (Object.prototype.toString.call(value) === '[object Array]' && value.length === 0) {
+				return false;
+			} else if (Object.prototype.toString.call(value) === '[object Object]' && Object.keys(value).length === 0) {
+				return false;
+			} else {
+				return true;
 			}
 		}
 	}

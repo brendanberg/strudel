@@ -36,16 +36,32 @@ var Strudel = require('./base');
 			var helper = Strudel.helpers[this.name.name || 'helperMissing'];
 			var options = {
 				fn: function(context) {
-					return Strudel.Utils.escapeExpression(self.consequent.stringWithContext(context)); 
+					if (self.consequent) {
+						return Strudel.Utils.escapeExpression(self.consequent.stringWithContext(context));
+					} else {
+						return '';
+					}
 				},
 				inverse: function(context) {
-					return Strudel.Utils.escapeExpression(self.alternative.stringWithContext(context));
+					if (self.alternative) {
+						return Strudel.Utils.escapeExpression(self.alternative.stringWithContext(context));
+					} else {
+						return '';
+					}
 				},
 				consequent: function(context) {
-					return Strudel.Utils.escapeExpression(self.consequent.stringWithContext(context));
+					if (self.consequent) {
+						return Strudel.Utils.escapeExpression(self.consequent.stringWithContext(context));
+					} else {
+						return '';
+					}
 				},
 				alternative: function(context) {
-					return Strudel.Utils.escapeExpression(self.alternative.stringWithContext(context));
+					if (self.alternative) {
+						return Strudel.Utils.escapeExpression(self.alternative.stringWithContext(context));
+					} else {
+						return '';
+					}
 				}
 			};
 			if (this.expression.attributes) {
@@ -121,7 +137,7 @@ var Strudel = require('./base');
 			
 			var value = this.valueAtPath(context);
 			
-			if (Strudel.Utils.isEmpty(value)) {
+			if (!Strudel.Utils.isTruthy(value)) {
 				return '';
 			} else {
 				return String(value);

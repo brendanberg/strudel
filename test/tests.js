@@ -95,6 +95,11 @@ describe('Strudel', function() {
 				context: {empty: ''},
 				output: ''
 			});
+			buildAssertion(assert.equal, {
+				source: '@(zero)',
+				context: {zero: 0},
+				output: ''
+			});
 			
 			// Do something about this?
 			buildAssertion(assert.equal, {
@@ -163,6 +168,14 @@ describe('Strudel', function() {
 			});
 		});
 		
+		it('should return the empty string if the condition is falsy and there is no alternative', function () {
+			buildAssertion(assert.equal, {
+				source: '@with(author)@(name)@end',
+				context: {},
+				output: ''
+			});
+		});
+		
 		it('should render raw strings when using double parens', function () {
 			buildAssertion(assert.equal, {
 				source: '@with(author)@((name))@end',
@@ -208,6 +221,14 @@ describe('Strudel', function() {
 				output: 'Brendan'
 			});
 		});
+
+		it('should return the empty string if the condition is falsy and there is no alternative', function () {
+			buildAssertion(assert.equal, {
+				source: '@if(author)@(author.name)@end',
+				context: {},
+				output: ''
+			});
+		});
 		
 		it('should execute the alternative body if the condition is falsy', function () {
 			buildAssertion(assert.equal, {
@@ -220,6 +241,44 @@ describe('Strudel', function() {
 				source: '@if(author)@(author.name)@else@(anonymous)@end',
 				context: {anonymous: 'Anonymous'},
 				output: 'Anonymous'
+			});
+		});
+
+		it('should render empty or falsy values as the empty string', function () {
+			buildAssertion(assert.equal, {
+				source: '@if(spiders)AAUGH!@else@end',
+				context: {},
+				output: ''
+			});
+			buildAssertion(assert.equal, {
+				source: '@if(spiders)AAUGH!@else@end',
+				context: {spiders: null},
+				output: ''
+			});
+			buildAssertion(assert.equal, {
+				source: '@if(spiders)AAUGH!@else@end',
+				context: {spiders: false},
+				output: ''
+			});
+			buildAssertion(assert.equal, {
+				source: '@if(spiders)AAUGH!@else@end',
+				context: {spiders: []},
+				output: ''
+			});
+			buildAssertion(assert.equal, {
+				source: '@if(spiders)AAUGH!@else@end',
+				context: {spiders: {}},
+				output: ''
+			});
+			buildAssertion(assert.equal, {
+				source: '@if(spiders)AAUGH!@else@end',
+				context: {spiders: ''},
+				output: ''
+			});
+			buildAssertion(assert.equal, {
+				source: '@if(spiders)AAUGH!@else@end',
+				context: {spiders: 0},
+				output: ''
 			});
 		});
 	});
