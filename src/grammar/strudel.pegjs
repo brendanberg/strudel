@@ -18,7 +18,7 @@ block
 expression
 	= a:attributes { var exp = new Strudel.AST.Expression([]); exp.attributes = a; return exp; }
 	/ helper:(n:name " " { return n; })? exp:path a:(" " a:attributes { return a; })?
-		{ exp.helper = helper; exp.attributes = a; return exp; }
+		{ exp.helper = helper || null; exp.attributes = a || {}; return exp; }
 
 attributes
 	= first:keyValuePair rest:(" " obj:keyValuePair { return obj; }) *

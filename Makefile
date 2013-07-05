@@ -7,10 +7,12 @@ build: src/base.js src/ast.js src/parser.js
 	@echo 'Concatenating scripts...'
 	@awk '$(pattern)' src/base.js > /tmp/strudel.js
 	@awk '$(pattern)' src/ast.js >> /tmp/strudel.js
-	@awk '$(pattern)' src/parser.js >> /tmp/strudel.js
+	@awk '$(pattern)' src/parser.js >> /tmp/strudel_parser.js
 	@sed '$(begin)' /tmp/strudel.js | sed '$(end)' > strudel.js
+	@sed '$(begin)' /tmp/strudel_parser.js | sed '$(end)' > strudel_parser.js
 	@echo 'Minifying script...'
 	@$(modulePath)/uglifyjs strudel.js > strudel.min.js
+	@$(modulePath)/uglifyjs strudel_parser.js > strudel_parser.min.js
 	@echo 'Build succeeded'
 
 src/parser.js: src/grammar/strudel.pegjs

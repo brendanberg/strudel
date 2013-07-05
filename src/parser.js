@@ -551,7 +551,7 @@ Strudel.Parser = (function(){
 						pos = pos1;
 					}
 					if (result0 !== null) {
-						result0 = (function(offset, helper, exp, a) { exp.helper = helper; exp.attributes = a; return exp; })(pos0, result0[0], result0[1], result0[2]);
+						result0 = (function(offset, helper, exp, a) { exp.helper = helper || null; exp.attributes = a || {}; return exp; })(pos0, result0[0], result0[1], result0[2]);
 					}
 					if (result0 === null) {
 						pos = pos0;

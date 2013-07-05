@@ -410,3 +410,104 @@ describe('Strudel', function() {
 		});
 	});
 });
+
+// ----------------------------------------------------------------------
+// Writing and loading AST data
+// ----------------------------------------------------------------------
+
+describe('Reading and writing', function() {
+	var genString = function(template, context) {
+			return String(template.stringWithContext(context));
+		},
+		buildTest = function(name, str, tree, ctx) {
+			describe(name, function() {
+				var template = Strudel.Parser.parse(str),
+					outputTree = template.write(),
+					context = ctx,
+					newTemplate;
+
+				if (tree) {
+					it('should produce a tree that matches the expected output', function() {
+						assert.deepEqual(outputTree, tree);
+					});
+				}
+
+				newTemplate = Strudel.AST.load(outputTree);
+
+				it('should load a matching AST', function() {
+					assert.deepEqual(template, newTemplate);
+				});
+
+				it('should render identically to the original template', function() {
+					assert.equal(genString(template, context), genString(newTemplate, context));
+				});
+			});
+		};
+	
+	buildTest('a trivial template', 'foo',
+		{
+			type: 'Template',
+			expressionList: [
+				{type: 'Literal', string: 'foo'}
+			]
+		}
+	);
+
+	buildTest('a simple template', '@(foo)',
+		{
+			type: 'Template',
+			expressionList: [{
+				type: 'Expression',
+				searchPath: [{type: 'Name', name: 'foo'}]
+			}]
+		},
+		{foo: 'bar'}
+	);
+
+	buildTest('a more complex template', '@with(author)@(firstName) @(lastName)@end',
+		{
+			type: 'Template',
+			expressionList: [
+				{
+					type: 'Block',
+					name: {type: 'Name', name: 'with'},
+					expression: {
+						type: 'Expression',
+						searchPath: [{type: 'Name', name: 'author'}]
+					},
+					consequent: {
+						type: 'Template',
+						expressionList: [{
+							type: 'Expression',
+							searchPath: [{type: 'Name', name: 'firstName'}]
+						}, {
+							type: 'Literal',
+							string: ' '
+						}, {
+							type: 'Expression',
+							searchPath: [{type: 'Name', name: 'lastName'}]
+						}]
+					}
+				}
+			]
+		},
+		{author: {firstName: "Brendan", lastName: "Berg"}}
+	);
+
+	buildTest('a template using a complex search path', '@(book.authors[1].name)', null, {
+		book: {authors: [{name: 'Joe'}, {name: 'Brendan'}]}
+	});
+
+	buildTest('a template using an if statement and search path', '@if(author)@(author.name)@elseAnonymous@end', null, {
+		author: {name: 'Brendan'}
+	});
+
+	buildTest('a template using a with statement', '@with(object)@(property)@end', null, {
+		object: {property: 'foo'}
+	});
+
+	buildTest('a template with an each block', '@each(items)@(name)@end', null, {
+		items: [{name: 'A'}, {name: 'B'}, {name: 'C'}]
+	});
+});
+
