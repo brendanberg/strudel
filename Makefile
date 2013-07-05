@@ -8,11 +8,11 @@ build: src/base.js src/ast.js src/parser.js
 	@awk '$(pattern)' src/base.js > /tmp/strudel.js
 	@awk '$(pattern)' src/ast.js >> /tmp/strudel.js
 	@awk '$(pattern)' src/parser.js >> /tmp/strudel_parser.js
-	@sed '$(begin)' /tmp/strudel.js | sed '$(end)' > strudel.js
-	@sed '$(begin)' /tmp/strudel_parser.js | sed '$(end)' > strudel_parser.js
+	@sed '$(begin)' /tmp/strudel.js | sed '$(end)' > build/strudel.js
+	@sed '$(begin)' /tmp/strudel_parser.js | sed '$(end)' > build/strudel_parser.js
 	@echo 'Minifying script...'
-	@$(modulePath)/uglifyjs strudel.js > strudel.min.js
-	@$(modulePath)/uglifyjs strudel_parser.js > strudel_parser.min.js
+	@$(modulePath)/uglifyjs build/strudel.js > build/strudel.min.js
+	@$(modulePath)/uglifyjs build/strudel_parser.js > build/strudel_parser.min.js
 	@echo 'Build succeeded'
 
 src/parser.js: src/grammar/strudel.pegjs
@@ -31,6 +31,6 @@ test: src/base.js src/ast.js src/parser.js test/tests.js
 	@$(modulePath)/mocha -u bdd -R list -C test/tests.js
 
 clean:
-	@rm -f strudel.js strudel.min.js src/parser.js
+	@rm -f build/* src/parser.js
 
 .PHONY: parser test clean
