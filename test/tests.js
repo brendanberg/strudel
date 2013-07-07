@@ -101,6 +101,17 @@ describe('Strudel', function() {
 				output: ''
 			});
 			
+			buildAssertion(assert.equal, {
+				source: '@(easterbunny)',
+				context: {},
+				output: ''
+			});
+			buildAssertion(assert.equal, {
+				source: '@(imaginary.easterbunny)',
+				context: {imaginary: {}},
+				output: ''
+			});
+			
 			// Do something about this?
 			buildAssertion(assert.equal, {
 				source: '@(fun)',
@@ -159,7 +170,7 @@ describe('Strudel', function() {
 				output: 'Brendan is 28 years old.'
 			});
 		});
-		
+
 		it('should execute the alternative body with the outer context if the expression is empty', function () {
 			buildAssertion(assert.equal, {
 				source: '@with(author)@(name)@else@(anonymous)@end',
@@ -168,19 +179,31 @@ describe('Strudel', function() {
 			});
 		});
 		
-		it('should return the empty string if the condition is falsy and there is no alternative', function () {
-			buildAssertion(assert.equal, {
-				source: '@with(author)@(name)@end',
-				context: {},
-				output: ''
-			});
-		});
-		
 		it('should render raw strings when using double parens', function () {
 			buildAssertion(assert.equal, {
 				source: '@with(author)@((name))@end',
 				context: {author: {name: '<b>Brendan</b>'}},
 				output: '<b>Brendan</b>'
+			});
+		});
+
+		it('should render the empty string if the condition is falsy or if the inner context has no matching properties', function() {
+			buildAssertion(assert.equal, {
+				source: '@with(author)@(name)@end',
+				context: {},
+				output: ''
+			});
+
+			buildAssertion(assert.equal, {
+				source: '@with(author)@(name)@end',
+				context: {author: {}},
+				output: ''
+			});
+			
+			buildAssertion(assert.equal, {
+				source: '@with(author)@(homeruns)@end',
+				context: {author: {name: "Brendan"}},
+				output: ''
 			});
 		});
 	});
@@ -279,6 +302,34 @@ describe('Strudel', function() {
 				source: '@if(spiders)AAUGH!@else@end',
 				context: {spiders: 0},
 				output: ''
+			});
+		});
+
+		it('should support nested "If" blocks', function () {
+			buildAssertion(assert.equal, {
+				source: '@if(durable) < @if(absorbant) DURABLE AND ABSORBANT! @end > @else Flimsy @end',
+				context: {durable: true, absorbant: true},
+				output: ' <  DURABLE AND ABSORBANT!  > '
+			});
+			buildAssertion(assert.equal, {
+				source: '@if(durable) < @if(absorbant) DURABLE AND ABSORBANT! @else Durable. @end > @end',
+				context: {durable: true, absorbant: true},
+				output: ' <  DURABLE AND ABSORBANT!  > '
+			});
+			buildAssertion(assert.equal, {
+				source: '@if(durable) < @if(absorbant) DURABLE AND ABSORBANT! @else Durable. @end > @else Flimsy @end',
+				context: {durable: true, absorbant: true},
+				output: ' <  DURABLE AND ABSORBANT!  > '
+			});
+			buildAssertion(assert.equal, {
+				source: '@if(durable) < @if(absorbant) DURABLE AND ABSORBANT! @else Durable. @end > @else Flimsy @end',
+				context: {durable: true, absorbant: false},
+				output: ' <  Durable.  > '
+			});
+			buildAssertion(assert.equal, {
+				source: '@if(durable) < @if(absorbant) DURABLE AND ABSORBANT! @else Durable. @end > @else Flimsy @end',
+				context: {durable: false, absorbant: true},
+				output: ' Flimsy '
 			});
 		});
 	});
@@ -400,9 +451,23 @@ describe('Strudel', function() {
 			}
 		});
 		
-		it('should fail when a path does not exist in a given context', function () {
+		it('should fail when a path cannot be traversed in a given context', function () {
 			try {
 				Strudel.compile('@(foo.bar)')({foo: null});
+				assert.fail();
+			} catch (e) {
+				assert.equal(e.message, 'Could not traverse specified path in given context.');
+			}
+
+			try {
+				Strudel.compile('@(foo.bar)')({foo: "Bar"});
+				assert.fail();
+			} catch (e) {
+				assert.equal(e.message, 'Could not traverse specified path in given context.');
+			}
+
+			try {
+				Strudel.compile('@(foo.bar)')({foo: ['bar']});
 				assert.fail();
 			} catch (e) {
 				assert.equal(e.message, 'Could not traverse specified path in given context.');
@@ -426,19 +491,14 @@ describe('Reading and writing', function() {
 					context = ctx,
 					newTemplate;
 
-				if (tree) {
-					it('should produce a tree that matches the expected output', function() {
+				it('should produce matching ASTs and render identically', function() {
+					if (tree) {
 						assert.deepEqual(outputTree, tree);
-					});
-				}
+					}
 
-				newTemplate = Strudel.AST.load(outputTree);
+					newTemplate = Strudel.AST.load(outputTree);
 
-				it('should load a matching AST', function() {
 					assert.deepEqual(template, newTemplate);
-				});
-
-				it('should render identically to the original template', function() {
 					assert.equal(genString(template, context), genString(newTemplate, context));
 				});
 			});
