@@ -1,21 +1,24 @@
+@(Strudel)
+==========
+
+
 Introduction
-============
+------------
 
 Strudel is a framework-agnostic templating system designed to share
 templates between front- and back-end code. It shares some philosophical
 similarities with templating systems like
 [Handlebars](http://handlebarsjs.com/) and
-[Mustache](http://mustache.github.io), but uses at signs, or strudels,
-instead of curly braces to denote template directives.
+[Mustache](http://mustache.github.io), but uses at signs (they look like
+strudel!) instead of curly braces to denote template directives.
 
 
 Tags and Templates
-==================
+------------------
 
-A template is made up of literal text with embedded Strudel tags.
-Templates must be compiled before they can be rendered by supplying a
-context for evaluation. Templates may be compiled on the server for
-greater efficiency.
+A template is made up of literal text with embedded Strudel tags. The
+template is compiled into a re-usable function, which renders a string by
+interpolating values from an evaluation context.
 
 Strudel tags always start with an at sign. There are two types of tags
 used in Strudel templates: expression tags are stand-alone tags that are
@@ -40,7 +43,7 @@ flexibility, the extent of which is discussed in depth later on.
 
 
 Compilation and Rendering
-=========================
+-------------------------
 
 Templates are compiled by calling `Strudel.compile` function. It expects a
 template string argument and returns a function that renders the template.
@@ -62,8 +65,7 @@ The value of `output` after the call to `render` is shown below.
 	<h1>Delirious New York</h1><p>by Rem Koolhaas</p>
 
 
-Precompiling Templates
-----------------------
+__Precompiling Templates__
 
 There are two reasons to consider precompiling Strudel templates before
 serving them to the browser: not loading the parser reduces page load time, and
@@ -97,7 +99,7 @@ section.
 
 
 Expression Tags
-===============
+---------------
 
 In addition to the simple expression discussed in the previous section,
 expression tags may include more complex search paths through the
@@ -105,8 +107,7 @@ evaluation context. This section shows how both simple expression tags
 behave and how to traverse nested objects with a key path expression.
 
 
-Autoescaping
-------------
+__Autoescaping__
 
 Values in expression tags that are singly parenthesized are automatically
 HTML escaped when rendering. Consider the following context:
@@ -121,8 +122,7 @@ as-is, without escaping HTML entities. So `@((architect))` is rendered as
 `<b>Rem Koolhaas</b>`.
 
 
-Suppressed Values
------------------
+__Suppressed Values__
 
 When evaluating an expression tag, if the value in the context is falsy or
 if there is no key matching the key in the expression, Strudel will render
@@ -135,8 +135,7 @@ Note: this behavior is subject to change in the future. A strict mode may
 be added, and numeric zeros may be rendered.
 
 
-Key Paths
----------
+__Key Paths__
 
 A key path may be used to traverse nested objects and arrays in an
 execution context. Dot notation is used to traverse keys in objects,
@@ -187,7 +186,7 @@ invalid for list types.
 
 
 Block Tags
-==========
+----------
 
 A block is a section of a template that falls between opening and closing
 block tags. Opening block tags consist of an at sign, a block identifier,
@@ -198,8 +197,7 @@ Pre-defined blocks include `with`, `each`, `if`, and `unless`. Let's look
 at each of these in detail.
 
 
-The With Block
---------------
+__The With Block__
 
 The `with` block evaluates the expression in its opening tag and pushes
 the corresponding object onto the context stack. (The `with` block behaves
@@ -232,8 +230,7 @@ Compiling the template would result in the following:
 	</div>
 
 
-The Each Block
---------------
+__The Each Block__
 
 The `each` block repeatedly renders its contents with each element of an
 array as its context.
@@ -274,8 +271,7 @@ The output would be:
 	</div>
 
 
-The If Block
-------------
+__The If Block__
 
 The `if` block conditionally executes if its expression evaluates to
 anything other than `false`, `undefined`, `null`, `[]`, or `""` (i.e. the
@@ -304,8 +300,7 @@ tag's expression returns a falsy value:
 	</div>
 
 
-The Unless Block
-----------------
+__The Unless Block__
 
 The `unless` block is the inverse of the `@if` block; it conditionally
 executes if its expression is falsy.
@@ -317,8 +312,7 @@ executes if its expression is falsy.
 An `unless` block may also have an optional `@else` clause.
 
 
-Custom Blocks
--------------
+__Custom Blocks__
 
 Custom blocks may be registered with the compiler to define custom
 behavior for arbitrary identifiers. A block handler is a function that is
