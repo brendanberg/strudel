@@ -111,7 +111,17 @@ describe('Strudel', function() {
 				context: {imaginary: {}},
 				output: ''
 			});
-			
+			buildAssertion(assert.equal, {
+				source: '@(imaginary[0])',
+				context: {imaginary: []},
+				output: ''
+			});
+			buildAssertion(assert.equal, {
+				source: '@(imaginary[2])',
+				context: {imaginary: ['Easter Bunny', 'Santa Claus']},
+				output: ''
+			});
+
 			// Do something about this?
 			buildAssertion(assert.equal, {
 				source: '@(fun)',
