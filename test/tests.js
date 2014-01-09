@@ -514,6 +514,35 @@ describe('Reading and writing', function() {
 			});
 		};
 	
+	describe('a null or undefined template', function() {
+		it('shouldn\'t fail when loading', function() {
+			var obj = {};
+			try {
+				Strudel.load(null);
+				Strudel.load(obj.symbol);
+				Strudel.load(5);
+				Strudel.load('boink');
+			} catch(e) {
+				console.log(e);
+				assert.fail();
+			}
+		});
+	});
+
+	describe('a null or undefined template', function() {
+		var obj = {};
+		it('should load as the empty string literal', function() {
+			var ast = Strudel.load(null);
+			assert.deepEqual(ast.write(), (Strudel.load({type:'Literal', string: ''})).write());
+
+			ast = Strudel.load(obj.symbol);
+			assert.deepEqual(ast.write(), (Strudel.load({type:'Literal', string: ''})).write());
+
+			ast = Strudel.load('nope');
+			assert.deepEqual(ast.write(), (Strudel.load({type:'Literal', string: ''})).write());
+		});
+	});
+
 	buildTest('a trivial template', 'foo',
 		{
 			type: 'Template',

@@ -298,7 +298,11 @@ var Strudel = require('./base');
 	};
 	
 	Strudel.AST.load =  function(dict) {
-		return Strudel.AST[dict.type].load(dict);
+		if (dict && typeof(dict) === 'object' && dict.hasOwnProperty('type')) {
+			return Strudel.AST[dict.type].load(dict);
+		} else {
+			return new Strudel.AST.Literal('');
+		}
 	};
 }());
 
