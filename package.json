@@ -17,7 +17,7 @@
 		"handlebars"
 	],
 	"devDependencies": {
-		"uglify-js": "2.2.2",
+		"uglify-js": "2.8.27",
 		"pegjs": "0.7.0",
 		"mocha": "1.7.4"
 	},
